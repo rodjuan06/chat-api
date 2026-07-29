@@ -19,8 +19,20 @@ public class ChatService {
         return chatRepository.findAll();
     }
 
+    public Chat getChatById(String id) {
+        return chatRepository.findById(id).orElse(null);
+    }
+
     public Chat createChat(Chat chat) {
         return chatRepository.save(chat);
+    }
+
+    public Chat updateChat(Chat chat) {
+        if  (chatRepository.findById(chat.getId()).isPresent()) {
+            return chatRepository.save(chat);
+        }
+
+        return null;
     }
 
     public void deleteChatById(String id) {

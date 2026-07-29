@@ -21,8 +21,24 @@ public class ChatController {
         return ResponseEntity.ok(chatService.getAllChats());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Chat> getChatById(@PathVariable String id) {
+        return ResponseEntity.ok(chatService.getChatById(id));
+    }
+
     @PostMapping
     public ResponseEntity<Chat> createChat(@RequestBody Chat chat) {
         return ResponseEntity.ok(chatService.createChat(chat));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Chat> updateChat(@RequestBody Chat chat) {
+        return ResponseEntity.ok(chatService.updateChat(chat));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Chat> deleteChatById(@PathVariable String id) {
+        chatService.deleteChatById(id);
+        return ResponseEntity.ok().build();
     }
 }
