@@ -1,18 +1,23 @@
 package com.rodjuan.chatapi.model;
 
+import com.mongodb.lang.NonNull;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 @Document(collection = "chat")
 public class Chat {
 
     @Id
-    private String id;
+    private ObjectId id;
 
     private String name;
     private int members;
+    private LocalDateTime createdAt;
 
     private ArrayList<Message> messages;
 
@@ -22,11 +27,11 @@ public class Chat {
         this.messages = new ArrayList<>();
     }
 
-    public String getId() {
+    public ObjectId getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
@@ -52,5 +57,13 @@ public class Chat {
 
     public void setMembers(int members) {
         this.members = members;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
