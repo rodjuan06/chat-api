@@ -1,14 +1,17 @@
 package com.rodjuan.chatapi.controller;
 
 import com.rodjuan.chatapi.model.Chat;
+import com.rodjuan.chatapi.model.Message;
 import com.rodjuan.chatapi.service.ChatService;
+import com.rodjuan.chatapi.service.MessageService;
+import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/chats")
+@RequestMapping("api/v1/chats")
 public class ChatController {
     private final ChatService chatService;
 
@@ -22,7 +25,7 @@ public class ChatController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Chat> getChatById(@PathVariable String id) {
+    public ResponseEntity<Chat> getChatById(@PathVariable ObjectId id) {
         return ResponseEntity.ok(chatService.getChatById(id));
     }
 
@@ -37,8 +40,9 @@ public class ChatController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Chat> deleteChatById(@PathVariable String id) {
+    public ResponseEntity<Chat> deleteChatById(@PathVariable ObjectId id) {
         chatService.deleteChatById(id);
         return ResponseEntity.ok().build();
     }
+
 }
