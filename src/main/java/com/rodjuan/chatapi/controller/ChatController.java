@@ -4,20 +4,18 @@ import com.rodjuan.chatapi.model.Chat;
 import com.rodjuan.chatapi.model.Message;
 import com.rodjuan.chatapi.service.ChatService;
 import com.rodjuan.chatapi.service.MessageService;
+import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Data
 @RestController
 @RequestMapping("api/v1/chats")
 public class ChatController {
     private final ChatService chatService;
-
-    public ChatController(ChatService chatService) {
-        this.chatService = chatService;
-    }
 
     @GetMapping
     public ResponseEntity<List<Chat>> getAllChats() {

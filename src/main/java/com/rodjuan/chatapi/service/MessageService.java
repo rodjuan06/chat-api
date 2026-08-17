@@ -1,10 +1,9 @@
 package com.rodjuan.chatapi.service;
 
-import com.mongodb.client.result.UpdateResult;
 import com.rodjuan.chatapi.model.Chat;
 import com.rodjuan.chatapi.model.Message;
-import com.rodjuan.chatapi.repository.ChatRepository;
 import com.rodjuan.chatapi.repository.MessageRepository;
+import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -15,28 +14,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
+@Data
 @Service
 public class MessageService {
 
     private final MessageRepository messageRepository;
     private final MongoTemplate mongoTemplate;
 
-    public MessageService(MessageRepository messageRepository, MongoTemplate mongoTemplate) {
-        this.messageRepository = messageRepository;
-        this.mongoTemplate = mongoTemplate;
-    }
-
     public List<Message> findAll() {
         return messageRepository.findAll();
     }
 
-    public List<Message> findAllByChat(ObjectId chatId) {
-        Chat chat = mongoTemplate.findById(chatId, Chat.class);
-        return Objects.requireNonNull(chat).getMessages();
-    }
+//    Ignore for now.
+//    public List<Message> findAllByChat(ObjectId chatId) {
+//        Chat chat = mongoTemplate.findById(chatId, Chat.class);
+//    }
 
     public Optional<Message> findById(ObjectId id) {
         return messageRepository.findById(id);

@@ -2,19 +2,17 @@ package com.rodjuan.chatapi.service;
 
 import com.rodjuan.chatapi.model.Chat;
 import com.rodjuan.chatapi.repository.ChatRepository;
+import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Data
 @Service
 public class ChatService {
     private final ChatRepository chatRepository;
-
-    public ChatService(ChatRepository chatRepository) {
-        this.chatRepository = chatRepository;
-    }
 
     public List<Chat> getAllChats() {
         return chatRepository.findAll();

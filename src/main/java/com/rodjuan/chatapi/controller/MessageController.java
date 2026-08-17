@@ -2,26 +2,24 @@ package com.rodjuan.chatapi.controller;
 
 import com.rodjuan.chatapi.model.Message;
 import com.rodjuan.chatapi.service.MessageService;
+import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Data
 @RestController
 @RequestMapping("api/v1/chats")
 public class MessageController {
 
     private final MessageService messageService;
 
-    public MessageController(MessageService messageService) {
-        this.messageService = messageService;
-    }
-
-    @GetMapping("/{chatId}/messages")
-    public ResponseEntity<List<Message>> getAllMessages(@PathVariable ObjectId chatId) {
-        return ResponseEntity.ok(messageService.findAllByChat(chatId));
-    }
+//    @GetMapping("/{chatId}/messages")
+//    public ResponseEntity<List<Message>> getAllMessages(@PathVariable ObjectId chatId) {
+//        return ResponseEntity.ok(messageService.findAllByChat(chatId));
+//    }
 
     @PostMapping("/{chatId}/messages")
     public ResponseEntity<Message> sendMessage(@PathVariable ObjectId chatId, @RequestBody Message message) {
