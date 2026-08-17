@@ -3,9 +3,11 @@ package com.rodjuan.chatapi.model;
 import org.bson.types.Binary;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
+@Document(collection = "chat.messages")
 public class Message {
 
     @Id

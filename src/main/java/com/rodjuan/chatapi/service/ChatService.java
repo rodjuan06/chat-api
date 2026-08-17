@@ -2,9 +2,10 @@ package com.rodjuan.chatapi.service;
 
 import com.rodjuan.chatapi.model.Chat;
 import com.rodjuan.chatapi.repository.ChatRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -19,11 +20,12 @@ public class ChatService {
         return chatRepository.findAll();
     }
 
-    public Chat getChatById(String id) {
+    public Chat getChatById(ObjectId id) {
         return chatRepository.findById(id).orElse(null);
     }
 
     public Chat createChat(Chat chat) {
+        chat.setCreatedAt(LocalDateTime.now());
         return chatRepository.save(chat);
     }
 
@@ -35,7 +37,7 @@ public class ChatService {
         return null;
     }
 
-    public void deleteChatById(String id) {
+    public void deleteChatById(ObjectId id) {
         chatRepository.deleteById(id);
     }
 }
