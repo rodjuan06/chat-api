@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,7 +35,6 @@ public class MessageService {
         return messageRepository.findById(id);
     }
 
-    @Transactional
     public Message save(ObjectId chatId, Message message) {
         try {
             message.setDate(LocalDateTime.now());
@@ -53,7 +51,6 @@ public class MessageService {
                 messageRepository.save(message): message;
     }
 
-    @Transactional
     public void delete(ObjectId chatId, ObjectId id) {
         try {
             messageRepository.deleteById(id);
