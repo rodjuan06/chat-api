@@ -1,0 +1,7 @@
+spring:
+  data:
+    mongodb:
+      connection-string: ${MONGO_CONNECTION_STRING:mongodb://localhost:27017/chat_db}
+      auto-index-creation: true
+# noinspection SpringBootApplicationPropertiesInspection
+MONGO_CONNECTION_STRING: mongodb://localhost:27017/chat_db

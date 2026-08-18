@@ -1,0 +1,5 @@
+spring:
+  data:
+    mongodb:
+      connection-string: ${MONGO_CONNECTION_STRING}
+      auto-index-creation: ${AUTO_INDEX_CREATION:true}
