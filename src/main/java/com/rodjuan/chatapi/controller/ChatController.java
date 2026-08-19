@@ -2,7 +2,7 @@ package com.rodjuan.chatapi.controller;
 
 import com.rodjuan.chatapi.model.Chat;
 import com.rodjuan.chatapi.service.ChatService;
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,8 +11,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
-@Data
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1/chats")
 public class ChatController {
     private final ChatService chatService;

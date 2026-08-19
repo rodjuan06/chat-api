@@ -2,24 +2,19 @@ package com.rodjuan.chatapi.service;
 
 import com.rodjuan.chatapi.exception.ChatNotFoundException;
 import com.rodjuan.chatapi.exception.MessageNotFoundException;
-import com.rodjuan.chatapi.model.Chat;
 import com.rodjuan.chatapi.model.Message;
 import com.rodjuan.chatapi.repository.ChatRepository;
 import com.rodjuan.chatapi.repository.MessageRepository;
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Data
 @Service
+@RequiredArgsConstructor
 public class MessageService {
 
     private final MessageRepository messageRepository;

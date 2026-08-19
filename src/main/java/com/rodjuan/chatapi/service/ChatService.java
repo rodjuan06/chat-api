@@ -3,15 +3,15 @@ package com.rodjuan.chatapi.service;
 import com.rodjuan.chatapi.exception.ChatNotFoundException;
 import com.rodjuan.chatapi.model.Chat;
 import com.rodjuan.chatapi.repository.ChatRepository;
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
 @Service
+@RequiredArgsConstructor
 public class ChatService {
     private final ChatRepository chatRepository;
 
@@ -40,3 +40,4 @@ public class ChatService {
         chatRepository.delete(existingChat);
     }
 }
+

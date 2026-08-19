@@ -2,16 +2,15 @@ package com.rodjuan.chatapi.controller;
 
 import com.rodjuan.chatapi.model.Message;
 import com.rodjuan.chatapi.service.MessageService;
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.Path;
 import java.util.List;
 
-@Data
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1/chats")
 public class MessageController {
 
