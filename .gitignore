@@ -36,5 +36,5 @@ build/
 .env
 .env.local
 .env.*.local
-src/main/resources/.env
+.env
 src/test/resources/.env

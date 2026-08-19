@@ -1,5 +1,7 @@
 spring:
+  mongodb:
+    uri: ${MONGO_CONNECTION_STRING}
+
   data:
     mongodb:
-      connection-string: ${MONGO_CONNECTION_STRING}
-      auto-index-creation: ${AUTO_INDEX_CREATION:true}
+      auto-index-creation: ${AUTO_INDEX_CREATION:false}
