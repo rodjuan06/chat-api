@@ -9,7 +9,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.util.Map;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler extends RuntimeException {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(ChatNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleChatNotFound(ChatNotFoundException e) {
