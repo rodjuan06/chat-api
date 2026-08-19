@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Path;
 import java.util.List;
 
 @Data
@@ -16,19 +17,19 @@ public class MessageController {
 
     private final MessageService messageService;
 
-//    @GetMapping("/{chatId}/messages")
-//    public ResponseEntity<List<Message>> getAllMessages(@PathVariable ObjectId chatId) {
-//        return ResponseEntity.ok(messageService.findAllByChat(chatId));
-//    }
+    @GetMapping("/{chatId}/messages")
+    public ResponseEntity<List<Message>> getAllMessages(@PathVariable ObjectId chatId) {
+        return ResponseEntity.ok(messageService.findAllByChat(chatId));
+    }
 
     @PostMapping("/{chatId}/messages")
     public ResponseEntity<Message> sendMessage(@PathVariable ObjectId chatId, @RequestBody Message message) {
         return ResponseEntity.ok(messageService.save(chatId, message));
     }
 
-    @PutMapping("/{chatId}/messages")
-    public ResponseEntity<Message> editMessage(@PathVariable ObjectId chatId, @RequestBody Message message) {
-        return ResponseEntity.ok(messageService.update(chatId, message));
+    @PutMapping("/{chatId}/messages/{id}")
+    public ResponseEntity<Message> editMessage(@PathVariable ObjectId chatId, @PathVariable ObjectId id, @RequestBody Message message) {
+        return ResponseEntity.ok(messageService.update(chatId, id, message));
     }
 
     @DeleteMapping("/{chatId}/messages/{id}")

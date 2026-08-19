@@ -1,14 +1,14 @@
 package com.rodjuan.chatapi.controller;
 
 import com.rodjuan.chatapi.model.Chat;
-import com.rodjuan.chatapi.model.Message;
 import com.rodjuan.chatapi.service.ChatService;
-import com.rodjuan.chatapi.service.MessageService;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @Data
@@ -29,18 +29,19 @@ public class ChatController {
 
     @PostMapping
     public ResponseEntity<Chat> createChat(@RequestBody Chat chat) {
-        return ResponseEntity.ok(chatService.createChat(chat));
+        Chat createdChat = chatService.createChat(chat);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(createdChat.getId()).toUri();
+        return ResponseEntity.created(location).body(createdChat);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Chat> updateChat(@RequestBody Chat chat) {
-        return ResponseEntity.ok(chatService.updateChat(chat));
+    public ResponseEntity<Chat> updateChat(@PathVariable ObjectId id, @RequestBody Chat chat) {
+        return ResponseEntity.ok(chatService.updateChat(id, chat));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Chat> deleteChatById(@PathVariable ObjectId id) {
         chatService.deleteChatById(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
-
 }

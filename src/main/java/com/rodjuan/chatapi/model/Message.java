@@ -1,8 +1,5 @@
 package com.rodjuan.chatapi.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.Binary;
@@ -19,13 +16,9 @@ import java.time.LocalDateTime;
 public class Message {
 
     @Id
-    @JsonSerialize(using = ToStringSerializer.class)
-    @JsonDeserialize(using = ObjectIdDeserializer.class)
     private ObjectId id;
 
     @Indexed
-    @JsonSerialize(using = ToStringSerializer.class)
-    @JsonDeserialize(using = ObjectIdDeserializer.class)
     private ObjectId chatId;
 
     private String sender;

@@ -21,7 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
             if (!ObjectId.isValid(source)) {
                 throw new IllegalArgumentException("Invalid object id format: " + source);
             }
-            
+
             return new ObjectId(source);
         }
     }

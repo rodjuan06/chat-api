@@ -1,18 +1,17 @@
 package com.rodjuan.chatapi.model;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import org.bson.types.ObjectId;
+import org.springframework.boot.jackson.JacksonComponent;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 
-import java.io.IOException;
-
-public class ObjectIdDeserializer extends JsonDeserializer<ObjectId> {
+@JacksonComponent
+public class ObjectIdDeserializer extends ValueDeserializer<ObjectId> {
 
     @Override
-    public ObjectId deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
-        String value = p.getText();
+    public ObjectId deserialize(JsonParser parser, DeserializationContext context) {
+        String value = parser.getString();
 
         if (value == null || !ObjectId.isValid(value)) {
             throw new IllegalArgumentException("Invalid ObjectId: " + value);

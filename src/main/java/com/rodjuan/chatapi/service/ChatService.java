@@ -1,5 +1,6 @@
 package com.rodjuan.chatapi.service;
 
+import com.rodjuan.chatapi.exception.ChatNotFoundException;
 import com.rodjuan.chatapi.model.Chat;
 import com.rodjuan.chatapi.repository.ChatRepository;
 import lombok.Data;
@@ -19,23 +20,23 @@ public class ChatService {
     }
 
     public Chat getChatById(ObjectId id) {
-        return chatRepository.findById(id).orElse(null);
+        return chatRepository.findById(id).orElseThrow(() -> new ChatNotFoundException(id));
     }
 
     public Chat createChat(Chat chat) {
+        chat.setId(null);
         chat.setCreatedAt(LocalDateTime.now());
         return chatRepository.save(chat);
     }
 
-    public Chat updateChat(Chat chat) {
-        if  (chatRepository.findById(chat.getId()).isPresent()) {
-            return chatRepository.save(chat);
-        }
-
-        return null;
+    public Chat updateChat(ObjectId id, Chat chat) {
+        Chat existingChat = getChatById(id);
+        existingChat.setName(chat.getName());
+        return chatRepository.save(existingChat);
     }
 
     public void deleteChatById(ObjectId id) {
-        chatRepository.deleteById(id);
+        Chat existingChat = getChatById(id);
+        chatRepository.delete(existingChat);
     }
 }

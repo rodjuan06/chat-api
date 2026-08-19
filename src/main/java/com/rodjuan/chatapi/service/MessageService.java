@@ -1,7 +1,10 @@
 package com.rodjuan.chatapi.service;
 
+import com.rodjuan.chatapi.exception.ChatNotFoundException;
+import com.rodjuan.chatapi.exception.MessageNotFoundException;
 import com.rodjuan.chatapi.model.Chat;
 import com.rodjuan.chatapi.model.Message;
+import com.rodjuan.chatapi.repository.ChatRepository;
 import com.rodjuan.chatapi.repository.MessageRepository;
 import lombok.Data;
 import org.bson.types.ObjectId;
@@ -20,43 +23,54 @@ import java.util.Optional;
 public class MessageService {
 
     private final MessageRepository messageRepository;
-    private final MongoTemplate mongoTemplate;
+    private final ChatRepository chatRepository;
 
     public List<Message> findAll() {
         return messageRepository.findAll();
     }
 
-//    Ignore for now.
-//    public List<Message> findAllByChat(ObjectId chatId) {
-//        Chat chat = mongoTemplate.findById(chatId, Chat.class);
-//    }
+    public List<Message> findAllByChat(ObjectId chatId) {
+        ensureChatExists(chatId);
+        return messageRepository.findByChatId(chatId);
+    }
 
     public Optional<Message> findById(ObjectId id) {
         return messageRepository.findById(id);
     }
 
     public Message save(ObjectId chatId, Message message) {
-        try {
-            message.setDate(LocalDateTime.now());
-            messageRepository.insert(message);
-            mongoTemplate.update(Chat.class).matching(Criteria.where("_id").is(chatId)).apply(new Update().push("messages", message)).first();
-            return message;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        ensureChatExists(chatId);
+        message.setId(null);
+        message.setChatId(chatId);
+        message.setDate(LocalDateTime.now());
+        return messageRepository.insert(message);
     }
 
-    public Message update(ObjectId chatId, Message message) {
-        return mongoTemplate.findOne(new Query(Criteria.where("_id").is(chatId)), Chat.class) != null ?
-                messageRepository.save(message): message;
+    public Message update(ObjectId chatId, ObjectId id, Message message) {
+        Message existingMessage = findInChat(chatId, id);
+        existingMessage.setText(message.getText());
+        existingMessage.setImage(message.getImage());
+        return messageRepository.save(existingMessage);
     }
 
     public void delete(ObjectId chatId, ObjectId id) {
-        try {
-            messageRepository.deleteById(id);
-            mongoTemplate.update(Chat.class).matching(Criteria.where("_id").is(chatId)).apply(new Update().pull("messages", id)).first();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        Message existingMessage = findInChat(chatId, id);
+        messageRepository.delete(existingMessage);
+    }
+
+    private Message findInChat(ObjectId chatId, ObjectId id) {
+        Message message = messageRepository.findById(id).orElseThrow(() -> new MessageNotFoundException(id));
+
+        if (!message.getChatId().equals(chatId)) {
+            throw new MessageNotFoundException(chatId);
+        }
+
+        return message;
+    }
+
+    private void ensureChatExists(ObjectId chatId) {
+        if (!chatRepository.existsById(chatId)) {
+            throw new ChatNotFoundException(chatId);
         }
     }
 }
