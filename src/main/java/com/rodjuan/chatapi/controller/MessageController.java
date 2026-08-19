@@ -32,8 +32,8 @@ public class MessageController {
     }
 
     @DeleteMapping("/{chatId}/messages/{id}")
-    public ResponseEntity<Message> deleteMessage(@PathVariable ObjectId chatId, @PathVariable ObjectId id) {
+    public ResponseEntity<Message> deleteMessageById(@PathVariable ObjectId chatId, @PathVariable ObjectId id) {
         messageService.delete(chatId, id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

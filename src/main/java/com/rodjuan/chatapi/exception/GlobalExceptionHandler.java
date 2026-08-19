@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<Map<String, String>> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Invalid Parameter" + e.getName()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Invalid Parameter: " + e.getName()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
