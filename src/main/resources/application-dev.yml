@@ -5,3 +5,21 @@ spring:
   data:
     mongodb:
       auto-index-creation: true
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/chat_api
+    username: ${POSTGRES_USER:chat_api}
+    password: ${POSTGRES_PASSWORD:admin123456}
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+jwt:
+  secret: ${JWT_SECRET:c2VjcmV0b2ZpY2lhbGNoYXRhcGljbGF2ZXNlY3JldGE=}
+  expiration-ms: 3600000
