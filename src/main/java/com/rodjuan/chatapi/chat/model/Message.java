@@ -1,4 +1,4 @@
-package com.rodjuan.chatapi.model;
+package com.rodjuan.chatapi.chat.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

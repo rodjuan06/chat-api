@@ -1,6 +1,6 @@
-package com.rodjuan.chatapi.repository;
+package com.rodjuan.chatapi.chat.repository;
 
-import com.rodjuan.chatapi.model.Message;
+import com.rodjuan.chatapi.chat.model.Message;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 

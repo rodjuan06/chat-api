@@ -1,4 +1,4 @@
-package com.rodjuan.chatapi.model;
+package com.rodjuan.chatapi.chat.model;
 
 import org.bson.types.ObjectId;
 import org.springframework.boot.jackson.JacksonComponent;

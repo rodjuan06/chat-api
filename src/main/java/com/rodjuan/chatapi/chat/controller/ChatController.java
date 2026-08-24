@@ -1,7 +1,7 @@
-package com.rodjuan.chatapi.controller;
+package com.rodjuan.chatapi.chat.controller;
 
-import com.rodjuan.chatapi.model.Chat;
-import com.rodjuan.chatapi.service.ChatService;
+import com.rodjuan.chatapi.chat.model.Chat;
+import com.rodjuan.chatapi.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;

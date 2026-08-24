@@ -1,8 +1,8 @@
-package com.rodjuan.chatapi.service;
+package com.rodjuan.chatapi.chat.service;
 
 import com.rodjuan.chatapi.exception.ChatNotFoundException;
-import com.rodjuan.chatapi.model.Chat;
-import com.rodjuan.chatapi.repository.ChatRepository;
+import com.rodjuan.chatapi.chat.model.Chat;
+import com.rodjuan.chatapi.chat.repository.ChatRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
