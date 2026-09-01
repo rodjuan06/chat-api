@@ -1,5 +1,7 @@
 package com.rodjuan.chatapi.chat.model;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.Binary;
@@ -17,11 +19,11 @@ public class Message {
 
     @Id
     private ObjectId id;
-
     @Indexed
     private ObjectId chatId;
-
-    private String sender;
+    private long senderId;
+    @NotBlank(message = "Message text is required")
+    @Size(max = 5000, message = "Message text is too long")
     private String text;
     private Binary image;
     private LocalDateTime date;

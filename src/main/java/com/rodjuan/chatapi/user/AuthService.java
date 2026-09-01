@@ -9,6 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -18,13 +20,15 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public void register(RegisterRequestDTO dto) {
-        if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new EmailAlreadyExistsException(dto.getEmail());
+        String email = normalizeEmail(dto.getEmail());
+
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailAlreadyExistsException(email);
         }
 
         User user = new User();
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
+        user.setName(dto.getName().trim());
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(Role.USER);
 
@@ -32,11 +36,17 @@ public class AuthService {
     }
 
     public AuthResponseDTO login(LoginRequestDTO dto) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
-        User user = userRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + dto.getEmail()));
+        String email = normalizeEmail(dto.getEmail());
 
-        String token = jwtService.generateToken(user);
-        return new AuthResponseDTO(token);
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, dto.getPassword()));
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+
+        return new AuthResponseDTO(jwtService.generateToken(user));
+    }
+
+    private String normalizeEmail(String email) {
+        return email.trim().toLowerCase(Locale.ROOT);
     }
 }

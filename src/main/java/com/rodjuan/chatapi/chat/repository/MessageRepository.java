@@ -5,8 +5,13 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MessageRepository extends MongoRepository<Message, ObjectId> {
+
     List<Message> findByChatId(ObjectId chatId);
-    List<Message> findByTextLike(String message);
+
+    Optional<Message> findByIdAndChatId(ObjectId id, ObjectId chatId);
+
+    void deleteAllByChatId(ObjectId chatId);
 }
