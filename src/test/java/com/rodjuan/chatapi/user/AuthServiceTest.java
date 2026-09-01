@@ -82,4 +82,39 @@ class AuthServiceTest {
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         assertEquals("jwt-token", response.getToken());
     }
+
+    @Test
+    void normalizesEmailAndNameWhenRegistering() {
+        RegisterRequestDTO request = new RegisterRequestDTO(" Maria ", " Maria@Example.COM ", "password");
+        when(userRepository.existsByEmail("maria@example.com")).thenReturn(false);
+        when(passwordEncoder.encode("password")).thenReturn("encoded-password");
+
+        authService.register(request);
+
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+
+        assertEquals("Maria", userCaptor.getValue().getName());
+        assertEquals("maria@example.com", userCaptor.getValue().getEmail());
+    }
+
+    @Test
+    void normalizesEmailWhenLoggingIn() {
+        LoginRequestDTO request = new LoginRequestDTO(" Maria@Example.COM ", "password");
+        User user = User.builder()
+                .email("maria@example.com")
+                .password("encoded-password")
+                .role(Role.USER)
+                .build();
+        when(userRepository.findByEmail("maria@example.com")).thenReturn(java.util.Optional.of(user));
+        when(jwtService.generateToken(user)).thenReturn("jwt-token");
+
+        AuthResponseDTO response = authService.login(request);
+
+        ArgumentCaptor<UsernamePasswordAuthenticationToken> authenticationCaptor =
+                ArgumentCaptor.forClass(UsernamePasswordAuthenticationToken.class);
+        verify(authenticationManager).authenticate(authenticationCaptor.capture());
+        assertEquals("maria@example.com", authenticationCaptor.getValue().getPrincipal());
+        assertEquals("jwt-token", response.getToken());
+    }
 }
