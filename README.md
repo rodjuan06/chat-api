@@ -1,24 +1,25 @@
 # chatAPI
 
-A REST API for managing chats and messages, built with Spring Boot, MongoDB, PostgreSQL, and Spring Security.
+REST API for chats and messages using polyglot persistence: PostgreSQL stores users and authentication data, while MongoDB stores chats and messages.
 
 ## Tech stack
 
 - Java 25
-- Spring Boot 4.1.0
-- Spring Web
+- Spring Boot 4.1
+- Spring Web and Bean Validation
+- Spring Data JPA, Hibernate and PostgreSQL
 - Spring Data MongoDB
-- Spring Data JPA with PostgreSQL
-- Spring Security
-- JSON Web Token dependencies
+- Spring Security and JWT
+- Spring Modulith
 - Maven
+- JUnit and Mockito
 
 ## Requirements
 
 - Java 25
-- Maven (or the included Maven Wrapper)
 - MongoDB
 - PostgreSQL
+- Maven, or the included Maven Wrapper
 
 ## Configuration
 
@@ -28,77 +29,137 @@ Copy the example environment file:
 cp .env.example .env
 ```
 
-Set values appropriate for your environment:
+Configure the local values:
 
 ```dotenv
 MONGO_CONNECTION_STRING=mongodb://localhost:27017/chat_db
 AUTO_INDEX_CREATION=true
 POSTGRES_USER=chat_api
-POSTGRES_PASSWORD=admin123456
-JWT_SECRET=replace_with_a_secure_secret
+POSTGRES_PASSWORD=change_me
+JWT_SECRET=base64_encoded_secret
 ```
 
-The default profile is `dev`. Production configuration is available in `application-prod.yml` and requires `MONGO_CONNECTION_STRING`, `POSTGRES_URL`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `JWT_SECRET`.
-
-## Running
+Generate a JWT secret with:
 
 ```bash
-./mvnw spring-boot:run
+openssl rand -base64 32
 ```
 
-The API is available at `http://localhost:8080`. Use API paths without a trailing slash, for example:
+The development profile connects to MongoDB on `localhost:27017` and PostgreSQL on `127.0.0.1:5432/chat_api`. Production additionally requires `POSTGRES_URL` and reads all credentials from environment variables.
 
-```text
-http://localhost:8080/api/v1/chats
+## Running locally
+
+```bash
+SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
 ```
 
-## API endpoints
+The API is available at `http://localhost:8080`.
 
-### Chats
+## Authentication
 
-| Method | Endpoint | Description |
+### Register
+
+```http
+POST /api/v1/auth/register
+Content-Type: application/json
+```
+
+```json
+{
+  "name": "Maria",
+  "email": "maria@example.com",
+  "password": "password123"
+}
+```
+
+Successful registration returns `201 Created`. E-mail addresses are trimmed and normalized to lowercase before storage.
+
+### Login
+
+```http
+POST /api/v1/auth/login
+Content-Type: application/json
+```
+
+```json
+{
+  "email": "maria@example.com",
+  "password": "password123"
+}
+```
+
+Successful login returns:
+
+```json
+{
+  "token": "jwt-token"
+}
+```
+
+Send this token to every chat and message endpoint:
+
+```http
+Authorization: Bearer jwt-token
+```
+
+Missing or invalid authentication returns `401 Unauthorized`.
+
+## Chat endpoints
+
+| Method | Endpoint | Result |
 | --- | --- | --- |
-| `GET` | `/api/v1/chats` | List all chats |
-| `GET` | `/api/v1/chats/{id}` | Get a chat by ID |
-| `POST` | `/api/v1/chats` | Create a chat |
-| `PUT` | `/api/v1/chats/{id}` | Update a chat |
-| `DELETE` | `/api/v1/chats/{id}` | Delete a chat |
+| `GET` | `/api/v1/chats` | Lists chats containing the authenticated user |
+| `GET` | `/api/v1/chats/{id}` | Returns a chat when the authenticated user is a member |
+| `POST` | `/api/v1/chats` | Creates a chat and returns `201 Created` |
+| `PUT` | `/api/v1/chats/{id}` | Updates the name of a chat accessible to the user |
+| `DELETE` | `/api/v1/chats/{id}` | Deletes the chat and its messages; returns `204 No Content` |
 
-Example chat payload:
+Example creation request:
 
 ```json
 {
   "name": "General",
-  "members": 3
+  "memberIds": [1, 2]
 }
 ```
 
-### Messages
+The authenticated creator is always added to `memberIds`. Repeated IDs are removed, and every member ID must exist in PostgreSQL.
 
-| Method | Endpoint | Description |
+## Message endpoints
+
+| Method | Endpoint | Result |
 | --- | --- | --- |
-| `GET` | `/api/v1/chats/{chatId}/messages` | List messages in a chat |
-| `POST` | `/api/v1/chats/{chatId}/messages` | Create a message |
-| `PUT` | `/api/v1/chats/{chatId}/messages/{id}` | Update a message |
-| `DELETE` | `/api/v1/chats/{chatId}/messages/{id}` | Delete a message |
+| `GET` | `/api/v1/chats/{chatId}/messages` | Lists messages when the user belongs to the chat |
+| `POST` | `/api/v1/chats/{chatId}/messages` | Creates a message and returns `201 Created` |
+| `PUT` | `/api/v1/chats/{chatId}/messages/{id}` | Updates a message owned by the authenticated user |
+| `DELETE` | `/api/v1/chats/{chatId}/messages/{id}` | Deletes a message owned by the authenticated user; returns `204 No Content` |
 
-Example message payload:
+Example message request:
 
 ```json
 {
-  "sender": "user@example.com",
   "text": "Hello"
 }
 ```
 
-## Authentication status
+The server derives `senderId` from the JWT. Clients cannot choose the sender. A chat member trying to modify another user's message receives `403 Forbidden`.
 
-Security is configured as stateless and protects all endpoints except `/api/v1/auth/**`. JWT-related dependencies and configuration are present, but authentication and token-generation endpoints are still under development.
+## Error responses
+
+Errors are returned as JSON. Examples include:
+
+- `400 Bad Request` for validation errors, invalid IDs or unknown chat members
+- `401 Unauthorized` for missing, invalid or incorrect credentials
+- `403 Forbidden` when modifying another user's message
+- `404 Not Found` when a chat or message is unavailable to the authenticated user
+- `409 Conflict` when registering an existing e-mail
 
 ## Testing
+
+Run the test suite with:
 
 ```bash
 ./mvnw test
 ```
 
-Tests require the configured database services to be available.
+Unit tests use Mockito and do not require databases. The current `contextLoads` integration test requires the configured PostgreSQL and MongoDB services; replacing that dependency with Testcontainers is still planned.
