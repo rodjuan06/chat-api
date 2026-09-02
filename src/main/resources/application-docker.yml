@@ -1,0 +1,22 @@
+spring:
+  mongodb:
+    uri: ${MONGO_CONNECTION_STRING:mongodb://mongo:27017/chat_db}
+
+  data:
+    mongodb:
+      auto-index-creation: true
+
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://postgres:5432/chat_api}
+    username: ${POSTGRES_USER:chat_api}
+    password: ${POSTGRES_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    show-sql: false
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: ${JWT_EXPIRATION_MS:3600000}
