@@ -1,11 +1,11 @@
-package com.rodjuan.chatapi.user;
+package com.rodjuan.chatapi.user.model;
 
+import com.rodjuan.chatapi.user.AuthenticatedUser;
 import jakarta.persistence.*;
 import lombok.*;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User implements UserDetails {
+public class User implements AuthenticatedUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,21 +47,21 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return AuthenticatedUser.super.isAccountNonExpired();
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return AuthenticatedUser.super.isAccountNonLocked();
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return AuthenticatedUser.super.isCredentialsNonExpired();
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return AuthenticatedUser.super.isEnabled();
     }
 }

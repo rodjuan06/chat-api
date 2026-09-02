@@ -1,4 +1,4 @@
-package com.rodjuan.chatapi.user;
+package com.rodjuan.chatapi.user.model;
 
 public enum Role {
     USER,

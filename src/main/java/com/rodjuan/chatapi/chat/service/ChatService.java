@@ -4,7 +4,7 @@ import com.rodjuan.chatapi.chat.repository.MessageRepository;
 import com.rodjuan.chatapi.exception.ChatNotFoundException;
 import com.rodjuan.chatapi.chat.model.Chat;
 import com.rodjuan.chatapi.chat.repository.ChatRepository;
-import com.rodjuan.chatapi.user.UserRepository;
+import com.rodjuan.chatapi.user.UserVerifier;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.Set;
 public class ChatService {
     private final ChatRepository chatRepository;
     private final MessageRepository messageRepository;
-    private final UserRepository userRepository;
+    private final UserVerifier userVerifier;
 
     public List<Chat> getAllChats(long memberId) {
         return chatRepository.findAllByMemberIdsContaining(memberId);
@@ -39,9 +39,7 @@ public class ChatService {
 
         memberIds.add(creatorId);
 
-        long existingUsers = userRepository.countByIdIn(memberIds);
-
-        if (existingUsers != memberIds.size()) {
+        if (!userVerifier.allExist(memberIds)) {
             throw new IllegalArgumentException("One or more chat members do not exist");
         }
 

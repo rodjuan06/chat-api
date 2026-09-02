@@ -1,5 +1,6 @@
-package com.rodjuan.chatapi.user;
+package com.rodjuan.chatapi.user.service;
 
+import com.rodjuan.chatapi.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

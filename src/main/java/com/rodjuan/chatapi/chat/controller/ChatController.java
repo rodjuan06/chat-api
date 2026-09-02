@@ -2,7 +2,7 @@ package com.rodjuan.chatapi.chat.controller;
 
 import com.rodjuan.chatapi.chat.model.Chat;
 import com.rodjuan.chatapi.chat.service.ChatService;
-import com.rodjuan.chatapi.user.User;
+import com.rodjuan.chatapi.user.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -39,7 +39,7 @@ public class ChatController {
             @ApiResponse(responseCode = "401", description = "Authentication required")
     })
     @GetMapping
-    public ResponseEntity<List<Chat>> getAllChats(@AuthenticationPrincipal User user) {
+    public ResponseEntity<List<Chat>> getAllChats(@AuthenticationPrincipal AuthenticatedUser user) {
         return ResponseEntity.ok(chatService.getAllChats(user.getId()));
     }
 
@@ -53,7 +53,7 @@ public class ChatController {
             @ApiResponse(responseCode = "404", description = "Chat not found or unavailable to the user")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<Chat> getChatById(@AuthenticationPrincipal User user, @PathVariable ObjectId id) {
+    public ResponseEntity<Chat> getChatById(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable ObjectId id) {
         return ResponseEntity.ok(chatService.getChatById(id, user.getId()));
     }
 
@@ -67,7 +67,7 @@ public class ChatController {
             @ApiResponse(responseCode = "401", description = "Authentication required")
     })
     @PostMapping
-    public ResponseEntity<Chat> createChat(@AuthenticationPrincipal User user, @Valid @RequestBody Chat chat) {
+    public ResponseEntity<Chat> createChat(@AuthenticationPrincipal AuthenticatedUser user, @Valid @RequestBody Chat chat) {
         Chat createdChat = chatService.createChat(chat, user.getId());
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(createdChat.getId()).toUri();
         return ResponseEntity.created(location).body(createdChat);
@@ -84,7 +84,7 @@ public class ChatController {
             @ApiResponse(responseCode = "404", description = "Chat not found or unavailable to the user")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Chat> updateChat(@AuthenticationPrincipal User user, @PathVariable ObjectId id, @Valid @RequestBody Chat chat) {
+    public ResponseEntity<Chat> updateChat(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable ObjectId id, @Valid @RequestBody Chat chat) {
         return ResponseEntity.ok(chatService.updateChat(id, chat, user.getId()));
     }
 
@@ -98,7 +98,7 @@ public class ChatController {
             @ApiResponse(responseCode = "404", description = "Chat not found or unavailable to the user")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Chat> deleteChatById(@AuthenticationPrincipal User user, @PathVariable ObjectId id) {
+    public ResponseEntity<Chat> deleteChatById(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable ObjectId id) {
         chatService.deleteChatById(id, user.getId());
         return ResponseEntity.noContent().build();
     }

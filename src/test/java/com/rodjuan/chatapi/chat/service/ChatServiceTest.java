@@ -4,7 +4,7 @@ import com.rodjuan.chatapi.chat.model.Chat;
 import com.rodjuan.chatapi.chat.repository.ChatRepository;
 import com.rodjuan.chatapi.chat.repository.MessageRepository;
 import com.rodjuan.chatapi.exception.ChatNotFoundException;
-import com.rodjuan.chatapi.user.UserRepository;
+import com.rodjuan.chatapi.user.UserVerifier;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,13 +29,13 @@ class ChatServiceTest {
     private MessageRepository messageRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserVerifier userVerifier;
 
     private ChatService chatService;
 
     @BeforeEach
     void setUp() {
-        chatService = new ChatService(chatRepository, messageRepository, userRepository);
+        chatService = new ChatService(chatRepository, messageRepository, userVerifier);
     }
 
     @Test
@@ -80,7 +80,7 @@ class ChatServiceTest {
         input.setId(new ObjectId());
         input.setName("General");
         input.setMemberIds(List.of(2L, creatorId, 2L));
-        when(userRepository.countByIdIn(anyCollection())).thenReturn(2L);
+        when(userVerifier.allExist(anyCollection())).thenReturn(true);
         when(chatRepository.save(input)).thenReturn(input);
 
         Chat result = chatService.createChat(input, creatorId);
@@ -88,7 +88,7 @@ class ChatServiceTest {
         assertNull(result.getId());
         assertEquals(List.of(2L, creatorId), result.getMemberIds());
         assertNotNull(result.getCreatedAt());
-        verify(userRepository).countByIdIn(argThat(ids -> ids.size() == 2
+        verify(userVerifier).allExist(argThat(ids -> ids.size() == 2
                 && ids.contains(2L) && ids.contains(creatorId)));
         verify(chatRepository).save(input);
     }
@@ -98,7 +98,7 @@ class ChatServiceTest {
         long creatorId = 7L;
         Chat input = new Chat();
         input.setName("Private");
-        when(userRepository.countByIdIn(anyCollection())).thenReturn(1L);
+        when(userVerifier.allExist(anyCollection())).thenReturn(true);
         when(chatRepository.save(input)).thenReturn(input);
 
         Chat result = chatService.createChat(input, creatorId);
@@ -110,7 +110,7 @@ class ChatServiceTest {
     void rejectsChatWhenAnyMemberDoesNotExist() {
         Chat input = new Chat();
         input.setMemberIds(List.of(2L, 999L));
-        when(userRepository.countByIdIn(anyCollection())).thenReturn(2L);
+        when(userVerifier.allExist(anyCollection())).thenReturn(false);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,

@@ -3,6 +3,12 @@ package com.rodjuan.chatapi.user;
 import com.rodjuan.chatapi.exception.EmailAlreadyExistsException;
 import com.rodjuan.chatapi.security.JwtService;
 import com.rodjuan.chatapi.support.ControllerTestConfiguration;
+import com.rodjuan.chatapi.user.controller.AuthController;
+import com.rodjuan.chatapi.user.dto.AuthResponse;
+import com.rodjuan.chatapi.user.dto.LoginRequest;
+import com.rodjuan.chatapi.user.dto.RegisterRequest;
+import com.rodjuan.chatapi.user.service.AuthService;
+import com.rodjuan.chatapi.user.service.CustomUserDetailsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -50,7 +56,7 @@ class AuthControllerTest {
                                 """))
                 .andExpect(status().isCreated());
 
-        verify(authService).register(any(RegisterRequestDTO.class));
+        verify(authService).register(any(RegisterRequest.class));
     }
 
     @Test
@@ -77,7 +83,7 @@ class AuthControllerTest {
     @Test
     void returns409WhenEmailAlreadyExists() throws Exception {
         doThrow(new EmailAlreadyExistsException("rodjuan@example.com"))
-                .when(authService).register(any(RegisterRequestDTO.class));
+                .when(authService).register(any(RegisterRequest.class));
 
         mockMvc.perform(post("/api/v1/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -95,8 +101,8 @@ class AuthControllerTest {
 
     @Test
     void returnsTokenWhenLoginSucceeds() throws Exception {
-        when(authService.login(any(LoginRequestDTO.class)))
-                .thenReturn(new AuthResponseDTO("jwt-token"));
+        when(authService.login(any(LoginRequest.class)))
+                .thenReturn(new AuthResponse("jwt-token"));
 
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -112,7 +118,7 @@ class AuthControllerTest {
 
     @Test
     void returns401WhenLoginCredentialsAreInvalid() throws Exception {
-        when(authService.login(any(LoginRequestDTO.class)))
+        when(authService.login(any(LoginRequest.class)))
                 .thenThrow(new BadCredentialsException("Bad credentials"));
 
         mockMvc.perform(post("/api/v1/auth/login")

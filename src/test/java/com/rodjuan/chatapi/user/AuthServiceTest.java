@@ -2,6 +2,13 @@ package com.rodjuan.chatapi.user;
 
 import com.rodjuan.chatapi.exception.EmailAlreadyExistsException;
 import com.rodjuan.chatapi.security.JwtService;
+import com.rodjuan.chatapi.user.dto.AuthResponse;
+import com.rodjuan.chatapi.user.dto.LoginRequest;
+import com.rodjuan.chatapi.user.dto.RegisterRequest;
+import com.rodjuan.chatapi.user.model.Role;
+import com.rodjuan.chatapi.user.model.User;
+import com.rodjuan.chatapi.user.repository.UserRepository;
+import com.rodjuan.chatapi.user.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,9 +48,9 @@ class AuthServiceTest {
 
     @Test
     void registersUserWithEncodedPasswordAndDefaultRole() {
-        RegisterRequestDTO request = new RegisterRequestDTO("Maria", "maria@example.com", "password");
-        when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
-        when(passwordEncoder.encode(request.getPassword())).thenReturn("encoded-password");
+        RegisterRequest request = new RegisterRequest("Maria", "maria@example.com", "password");
+        when(userRepository.existsByEmail(request.email())).thenReturn(false);
+        when(passwordEncoder.encode(request.password())).thenReturn("encoded-password");
 
         authService.register(request);
 
@@ -59,8 +66,8 @@ class AuthServiceTest {
 
     @Test
     void rejectsDuplicateEmail() {
-        RegisterRequestDTO request = new RegisterRequestDTO("Maria", "maria@example.com", "password");
-        when(userRepository.existsByEmail(request.getEmail())).thenReturn(true);
+        RegisterRequest request = new RegisterRequest("Maria", "maria@example.com", "password");
+        when(userRepository.existsByEmail(request.email())).thenReturn(true);
 
         assertThrows(EmailAlreadyExistsException.class, () -> authService.register(request));
         verify(userRepository, never()).save(any(User.class));
@@ -68,24 +75,24 @@ class AuthServiceTest {
 
     @Test
     void authenticatesUserAndReturnsToken() {
-        LoginRequestDTO request = new LoginRequestDTO("maria@example.com", "password");
+        LoginRequest request = new LoginRequest("maria@example.com", "password");
         User user = User.builder()
-                .email(request.getEmail())
+                .email(request.email())
                 .password("encoded-password")
                 .role(Role.USER)
                 .build();
-        when(userRepository.findByEmail(request.getEmail())).thenReturn(java.util.Optional.of(user));
+        when(userRepository.findByEmail(request.email())).thenReturn(java.util.Optional.of(user));
         when(jwtService.generateToken(user)).thenReturn("jwt-token");
 
-        AuthResponseDTO response = authService.login(request);
+        AuthResponse response = authService.login(request);
 
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        assertEquals("jwt-token", response.getToken());
+        assertEquals("jwt-token", response.token());
     }
 
     @Test
     void normalizesEmailAndNameWhenRegistering() {
-        RegisterRequestDTO request = new RegisterRequestDTO(" Maria ", " Maria@Example.COM ", "password");
+        RegisterRequest request = new RegisterRequest(" Maria ", " Maria@Example.COM ", "password");
         when(userRepository.existsByEmail("maria@example.com")).thenReturn(false);
         when(passwordEncoder.encode("password")).thenReturn("encoded-password");
 
@@ -100,7 +107,7 @@ class AuthServiceTest {
 
     @Test
     void normalizesEmailWhenLoggingIn() {
-        LoginRequestDTO request = new LoginRequestDTO(" Maria@Example.COM ", "password");
+        LoginRequest request = new LoginRequest(" Maria@Example.COM ", "password");
         User user = User.builder()
                 .email("maria@example.com")
                 .password("encoded-password")
@@ -109,12 +116,12 @@ class AuthServiceTest {
         when(userRepository.findByEmail("maria@example.com")).thenReturn(java.util.Optional.of(user));
         when(jwtService.generateToken(user)).thenReturn("jwt-token");
 
-        AuthResponseDTO response = authService.login(request);
+        AuthResponse response = authService.login(request);
 
         ArgumentCaptor<UsernamePasswordAuthenticationToken> authenticationCaptor =
                 ArgumentCaptor.forClass(UsernamePasswordAuthenticationToken.class);
         verify(authenticationManager).authenticate(authenticationCaptor.capture());
         assertEquals("maria@example.com", authenticationCaptor.getValue().getPrincipal());
-        assertEquals("jwt-token", response.getToken());
+        assertEquals("jwt-token", response.token());
     }
 }

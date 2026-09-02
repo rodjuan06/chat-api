@@ -1,5 +1,6 @@
-package com.rodjuan.chatapi.user;
+package com.rodjuan.chatapi.user.repository;
 
+import com.rodjuan.chatapi.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;

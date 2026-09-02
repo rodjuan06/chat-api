@@ -1,5 +1,9 @@
-package com.rodjuan.chatapi.user;
+package com.rodjuan.chatapi.user.controller;
 
+import com.rodjuan.chatapi.user.service.AuthService;
+import com.rodjuan.chatapi.user.dto.AuthResponse;
+import com.rodjuan.chatapi.user.dto.LoginRequest;
+import com.rodjuan.chatapi.user.dto.RegisterRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -44,7 +48,7 @@ public class AuthController {
             )
     })
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequestDTO dto) {
+    public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequest dto) {
         authService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -59,7 +63,7 @@ public class AuthController {
                     description = "Authentication successful",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = AuthResponseDTO.class)
+                            schema = @Schema(implementation = AuthResponse.class)
                     )
             ),
             @ApiResponse(
@@ -72,8 +76,8 @@ public class AuthController {
             )
     })
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@RequestBody @Valid LoginRequestDTO dto) {
-        AuthResponseDTO authResponseDTO = authService.login(dto);
-        return ResponseEntity.ok(authResponseDTO);
+    public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest dto) {
+        AuthResponse authResponse = authService.login(dto);
+        return ResponseEntity.ok(authResponse);
     }
 }

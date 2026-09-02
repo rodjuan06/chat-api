@@ -1,7 +1,13 @@
-package com.rodjuan.chatapi.user;
+package com.rodjuan.chatapi.user.service;
 
 import com.rodjuan.chatapi.exception.EmailAlreadyExistsException;
 import com.rodjuan.chatapi.security.JwtService;
+import com.rodjuan.chatapi.user.model.Role;
+import com.rodjuan.chatapi.user.model.User;
+import com.rodjuan.chatapi.user.repository.UserRepository;
+import com.rodjuan.chatapi.user.dto.AuthResponse;
+import com.rodjuan.chatapi.user.dto.LoginRequest;
+import com.rodjuan.chatapi.user.dto.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,31 +25,31 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public void register(RegisterRequestDTO dto) {
-        String email = normalizeEmail(dto.getEmail());
+    public void register(RegisterRequest dto) {
+        String email = normalizeEmail(dto.email());
 
         if (userRepository.existsByEmail(email)) {
             throw new EmailAlreadyExistsException(email);
         }
 
         User user = new User();
-        user.setName(dto.getName().trim());
+        user.setName(dto.name().trim());
         user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setPassword(passwordEncoder.encode(dto.password()));
         user.setRole(Role.USER);
 
         userRepository.save(user);
     }
 
-    public AuthResponseDTO login(LoginRequestDTO dto) {
-        String email = normalizeEmail(dto.getEmail());
+    public AuthResponse login(LoginRequest dto) {
+        String email = normalizeEmail(dto.email());
 
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, dto.getPassword()));
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, dto.password()));
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
-        return new AuthResponseDTO(jwtService.generateToken(user));
+        return new AuthResponse(jwtService.generateToken(user));
     }
 
     private String normalizeEmail(String email) {
