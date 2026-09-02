@@ -162,4 +162,4 @@ Run the test suite with:
 ./mvnw test
 ```
 
-Unit tests use Mockito and do not require databases. The current `contextLoads` integration test requires the configured PostgreSQL and MongoDB services; replacing that dependency with Testcontainers is still planned.
+The suite currently has 41 tests. Unit and MVC slice tests use Mockito to cover services, controllers, validation and HTTP security responses. The `contextLoads` integration test starts temporary PostgreSQL and MongoDB instances with Testcontainers, so Docker must be running; no locally installed databases are required.
