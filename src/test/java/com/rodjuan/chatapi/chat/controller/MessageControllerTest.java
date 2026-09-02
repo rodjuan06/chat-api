@@ -9,6 +9,7 @@ import com.rodjuan.chatapi.user.model.Role;
 import com.rodjuan.chatapi.user.model.User;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -25,6 +26,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -108,7 +110,8 @@ class MessageControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "text": "Hello"
+                                  "text": "Hello",
+                                  "senderId": 999
                                 }
                                 """))
                 .andExpect(status().isCreated())
@@ -117,8 +120,15 @@ class MessageControllerTest {
                         "http://localhost/api/v1/chats/" + chatId.toHexString()
                                 + "/messages/" + messageId.toHexString()
                 ))
+                .andExpect(jsonPath("$.id").value(messageId.toHexString()))
+                .andExpect(jsonPath("$.chatId").value(chatId.toHexString()))
                 .andExpect(jsonPath("$.senderId").value(7))
                 .andExpect(jsonPath("$.text").value("Hello"));
+
+        ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
+        verify(messageService).save(eq(chatId), messageCaptor.capture(), eq(7L));
+        assertEquals("Hello", messageCaptor.getValue().getText());
+        assertEquals(0L, messageCaptor.getValue().getSenderId());
     }
 
     @Test

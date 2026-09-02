@@ -1,5 +1,9 @@
 package com.rodjuan.chatapi.chat.controller;
 
+import com.rodjuan.chatapi.chat.dto.MessageCreateRequest;
+import com.rodjuan.chatapi.chat.dto.MessageResponse;
+import com.rodjuan.chatapi.chat.dto.MessageUpdateRequest;
+import com.rodjuan.chatapi.chat.mapper.MessageMapper;
 import com.rodjuan.chatapi.chat.model.Message;
 import com.rodjuan.chatapi.chat.service.MessageService;
 import com.rodjuan.chatapi.user.AuthenticatedUser;
@@ -41,8 +45,12 @@ public class MessageController {
             @ApiResponse(responseCode = "404", description = "Chat not found or unavailable to the user")
     })
     @GetMapping("/{chatId}/messages")
-    public ResponseEntity<List<Message>> getAllMessage(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable ObjectId chatId) {
-        return ResponseEntity.ok(messageService.findAllByChat(chatId, user.getId()));
+    public ResponseEntity<List<MessageResponse>> getAllMessage(@AuthenticationPrincipal AuthenticatedUser user,
+                                                               @PathVariable ObjectId chatId) {
+        List<MessageResponse> messages = messageService.findAllByChat(chatId, user.getId()).stream()
+                .map(MessageMapper::toResponse)
+                .toList();
+        return ResponseEntity.ok(messages);
     }
 
     @Operation(
@@ -56,16 +64,17 @@ public class MessageController {
             @ApiResponse(responseCode = "404", description = "Chat not found or unavailable to the user")
     })
     @PostMapping("/{chatId}/messages")
-    public ResponseEntity<Message> sendMessage(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable ObjectId chatId,
-                                               @Valid @RequestBody Message message) {
-        Message savedMessage = messageService.save(chatId, message, user.getId());
+    public ResponseEntity<MessageResponse> sendMessage(@AuthenticationPrincipal AuthenticatedUser user,
+                                                       @PathVariable ObjectId chatId,
+                                                       @Valid @RequestBody MessageCreateRequest request) {
+        Message savedMessage = messageService.save(chatId, MessageMapper.toEntity(request), user.getId());
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(savedMessage.getId())
                 .toUri();
 
-        return ResponseEntity.created(location).body(savedMessage);
+        return ResponseEntity.created(location).body(MessageMapper.toResponse(savedMessage));
     }
 
     @Operation(
@@ -80,9 +89,12 @@ public class MessageController {
             @ApiResponse(responseCode = "404", description = "Chat or message not found")
     })
     @PutMapping("/{chatId}/messages/{id}")
-    public ResponseEntity<Message> editMessage(@AuthenticationPrincipal AuthenticatedUser user, @PathVariable ObjectId chatId,
-                                               @PathVariable ObjectId id, @Valid @RequestBody Message message) {
-        return ResponseEntity.ok(messageService.update(chatId, id, message, user.getId()));
+    public ResponseEntity<MessageResponse> editMessage(@AuthenticationPrincipal AuthenticatedUser user,
+                                                       @PathVariable ObjectId chatId,
+                                                       @PathVariable ObjectId id,
+                                                       @Valid @RequestBody MessageUpdateRequest request) {
+        Message updatedMessage = messageService.update(chatId, id, MessageMapper.toEntity(request), user.getId());
+        return ResponseEntity.ok(MessageMapper.toResponse(updatedMessage));
     }
 
     @Operation(

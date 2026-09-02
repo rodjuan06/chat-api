@@ -10,6 +10,7 @@ import com.rodjuan.chatapi.user.model.Role;
 import com.rodjuan.chatapi.user.model.User;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -24,6 +25,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -102,7 +105,8 @@ class ChatControllerTest {
                         .content("""
                                 {
                                   "name": "General",
-                                  "memberIds": [8]
+                                  "memberIds": [8],
+                                  "createdAt": "2000-01-01T00:00:00"
                                 }
                                 """))
                 .andExpect(status().isCreated())
@@ -110,7 +114,14 @@ class ChatControllerTest {
                         "Location",
                         "http://localhost/api/v1/chats/" + id.toHexString()
                 ))
+                .andExpect(jsonPath("$.id").value(id.toHexString()))
                 .andExpect(jsonPath("$.name").value("General"));
+
+        ArgumentCaptor<Chat> chatCaptor = ArgumentCaptor.forClass(Chat.class);
+        verify(chatService).createChat(chatCaptor.capture(), eq(7L));
+        assertEquals("General", chatCaptor.getValue().getName());
+        assertEquals(List.of(8L), chatCaptor.getValue().getMemberIds());
+        assertNull(chatCaptor.getValue().getCreatedAt());
     }
 
     @Test
