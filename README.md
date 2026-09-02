@@ -2,6 +2,8 @@
 
 REST API for chats and messages using polyglot persistence: PostgreSQL stores users and authentication data, while MongoDB stores chats and messages.
 
+The API currently includes authentication and authorization, a reproducible Docker environment, health checks, OpenAPI documentation, DTO-based HTTP contracts and automated architecture verification.
+
 ## Tech stack
 
 - Java 25
@@ -12,9 +14,18 @@ REST API for chats and messages using polyglot persistence: PostgreSQL stores us
 - Spring Security and JWT
 - Spring Boot Actuator
 - Spring Modulith
+- Springdoc OpenAPI and Swagger UI
 - Maven
 - Docker and Docker Compose
 - JUnit, Mockito and Testcontainers
+
+## Architecture
+
+The application is organized as a modular monolith. The `user` module owns registration, authentication and user persistence in PostgreSQL. The `chat` module owns chats and messages stored in MongoDB. Communication between modules happens through small public contracts instead of direct access to another module's repository.
+
+HTTP endpoints use dedicated request and response DTOs. Clients do not control server-managed fields such as chat and message IDs, creation dates, `chatId` or `senderId`. Mappers translate between these DTOs and the MongoDB entities.
+
+Spring Modulith verifies the module boundaries during the test suite with `ApplicationModules.verify()`.
 
 ## Requirements
 
@@ -139,6 +150,22 @@ SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
 
 The API is available at `http://localhost:8080`.
 
+## OpenAPI and Swagger UI
+
+With the application running, the interactive API documentation is available at:
+
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+
+Registration and login are public. To test protected endpoints in Swagger UI:
+
+1. Register a user through `POST /api/v1/auth/register`.
+2. Log in through `POST /api/v1/auth/login` and copy the returned token.
+3. Select **Authorize** in Swagger UI.
+4. Enter only the JWT value. Swagger adds the `Bearer` prefix automatically.
+
+The documentation includes the Bearer JWT security scheme, request and response DTOs, validation rules, examples and expected HTTP status codes.
+
 ## Authentication
 
 ### Register
@@ -209,6 +236,17 @@ Example creation request:
 
 The authenticated creator is always added to `memberIds`. Repeated IDs are removed, and every member ID must exist in PostgreSQL.
 
+Example response:
+
+```json
+{
+  "id": "66d7703b701a5c46272c2210",
+  "name": "General",
+  "memberIds": [1, 2],
+  "createdAt": "2026-09-02T17:30:00"
+}
+```
+
 ## Message endpoints
 
 | Method | Endpoint | Result |
@@ -222,11 +260,25 @@ Example message request:
 
 ```json
 {
-  "text": "Hello"
+  "text": "Hello",
+  "image": null
 }
 ```
 
-The server derives `senderId` from the JWT. Clients cannot choose the sender. A chat member trying to modify another user's message receives `403 Forbidden`.
+The optional `image` field is represented as a Base64 string when used. The server derives `senderId`, `chatId`, identifiers and dates; clients cannot choose these values. A chat member trying to modify another user's message receives `403 Forbidden`.
+
+Example response:
+
+```json
+{
+  "id": "66d7703b701a5c46272c2211",
+  "chatId": "66d7703b701a5c46272c2210",
+  "senderId": 1,
+  "text": "Hello",
+  "image": null,
+  "date": "2026-09-02T17:31:00"
+}
+```
 
 ## Error responses
 
@@ -246,4 +298,17 @@ Run the test suite with:
 ./mvnw test
 ```
 
-The suite currently has 41 tests. Unit and MVC slice tests use Mockito to cover services, controllers, validation and HTTP security responses. The `contextLoads` integration test starts temporary PostgreSQL and MongoDB instances with Testcontainers, so Docker must be running; no locally installed databases are required.
+The suite currently has 42 tests. Unit and MVC slice tests use Mockito to cover services, controllers, validation and HTTP security responses. The `contextLoads` integration test starts temporary PostgreSQL and MongoDB instances with Testcontainers, so Docker must be running; no locally installed databases are required. A Spring Modulith test also verifies that module boundaries are respected.
+
+## Current status and next steps
+
+Completed milestones:
+
+- Chat and message operations
+- User registration, JWT authentication and authorization rules
+- Dockerfile, Docker Compose and container health checks
+- OpenAPI and Swagger UI documentation
+- DTOs and mappers for user, chat and message HTTP contracts
+- Testcontainers integration and automated module verification
+
+Planned improvements include a standardized error response format, dedicated JWT filter tests, continuous integration, pagination, Flyway migrations, explicit member-management endpoints and deployment.
