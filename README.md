@@ -1,4 +1,4 @@
-# chatAPI
+# ChatAPI
 
 REST API for chats and messages using polyglot persistence: PostgreSQL stores users and authentication data, while MongoDB stores chats and messages.
 

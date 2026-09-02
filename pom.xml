@@ -11,8 +11,8 @@
     <groupId>com.rodjuan</groupId>
     <artifactId>chatAPI</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>chatAPI</name>
-    <description>chatAPI</description>
+    <name>ChatAPI</name>
+    <description>REST API for authenticated chats and messages</description>
     <url/>
     <licenses>
         <license/>
