@@ -16,6 +16,10 @@ FROM eclipse-temurin:25-jre
 
 WORKDIR /app
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN groupadd --system app && useradd --system --gid app app
 
 COPY --from=build /app/target/chatAPI-0.0.1-SNAPSHOT.jar app.jar

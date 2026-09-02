@@ -10,16 +10,24 @@ REST API for chats and messages using polyglot persistence: PostgreSQL stores us
 - Spring Data JPA, Hibernate and PostgreSQL
 - Spring Data MongoDB
 - Spring Security and JWT
+- Spring Boot Actuator
 - Spring Modulith
 - Maven
-- JUnit and Mockito
+- Docker and Docker Compose
+- JUnit, Mockito and Testcontainers
 
 ## Requirements
 
+For the complete containerized environment:
+
+- Docker Engine
+- Docker Compose
+
+For running the application directly on the host:
+
 - Java 25
-- MongoDB
-- PostgreSQL
 - Maven, or the included Maven Wrapper
+- PostgreSQL and MongoDB, installed locally or started through Docker Compose
 
 ## Configuration
 
@@ -37,6 +45,7 @@ AUTO_INDEX_CREATION=true
 POSTGRES_USER=chat_api
 POSTGRES_PASSWORD=change_me
 JWT_SECRET=base64_encoded_secret
+JWT_EXPIRATION_MS=3600000
 ```
 
 Generate a JWT secret with:
@@ -45,9 +54,84 @@ Generate a JWT secret with:
 openssl rand -base64 32
 ```
 
-The development profile connects to MongoDB on `localhost:27017` and PostgreSQL on `127.0.0.1:5432/chat_api`. Production additionally requires `POSTGRES_URL` and reads all credentials from environment variables.
+Do not commit the `.env` file. The development profile connects to MongoDB on `localhost:27017` and PostgreSQL on `127.0.0.1:5432/chat_api`. The Docker profile uses the internal service names `mongo` and `postgres`. Production additionally requires `POSTGRES_URL` and reads all credentials from environment variables.
+
+## Running with Docker Compose
+
+Build the application image and start the API, PostgreSQL and MongoDB:
+
+```bash
+docker compose up --build
+```
+
+To run the stack in the background:
+
+```bash
+docker compose up -d --build
+```
+
+Check the status of the three containers:
+
+```bash
+docker compose ps
+```
+
+The expected state is `healthy` for `app`, `postgres` and `mongo`. The API is available at `http://localhost:8080`, and its health endpoint is available without authentication:
+
+```bash
+curl http://localhost:8080/actuator/health
+```
+
+Expected response:
+
+```json
+{"status":"UP"}
+```
+
+Follow all logs or only the application logs:
+
+```bash
+docker compose logs -f
+docker compose logs -f app
+```
+
+Stop and remove the containers while preserving the database data:
+
+```bash
+docker compose down
+```
+
+PostgreSQL and MongoDB data is stored in the named volumes `postgres_data` and `mongo_data`. To also delete the database data and return to an empty environment, run:
+
+```bash
+docker compose down -v
+```
+
+The `-v` option permanently removes the local database volumes and should be used with care.
+
+## Running the application from the IDE
+
+To use breakpoints and run the Spring application from the IDE, start only the databases:
+
+```bash
+docker compose up -d postgres mongo
+```
+
+Then run `ChatApiApplication` with the `dev` profile, or use the Maven Wrapper:
+
+```bash
+SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
+```
+
+Do not run the `app` container and the application from the IDE at the same time, because both use port `8080`. If the complete stack is already running, stop only the containerized application first:
+
+```bash
+docker compose stop app
+```
 
 ## Running locally
+
+With PostgreSQL and MongoDB already running, start the application with:
 
 ```bash
 SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
